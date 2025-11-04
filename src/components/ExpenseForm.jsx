@@ -86,30 +86,7 @@ const expenseHeads = [
   { value: "utilities", label: "Utilities" },
   { value: "maintenance", label: "Maintenance" },
   { value: "miscellaneous", label: "Miscellaneous" },
-  { value: "fuel", label: "Fuel" },
-  { value: "food", label: "Food & Beverage" },
-  { value: "accommodation", label: "Accommodation" },
-  { value: "utilities", label: "Utilities" },
-  { value: "maintenance", label: "Maintenance" },
-  { value: "miscellaneous", label: "Miscellaneous" },
-  { value: "fuel", label: "Fuel" },
-  { value: "food", label: "Food & Beverage" },
-  { value: "accommodation", label: "Accommodation" },
-  { value: "utilities", label: "Utilities" },
-  { value: "maintenance", label: "Maintenance" },
-  { value: "miscellaneous", label: "Miscellaneous" },
-  { value: "fuel", label: "Fuel" },
-  { value: "food", label: "Food & Beverage" },
-  { value: "accommodation", label: "Accommodation" },
-  { value: "utilities", label: "Utilities" },
-  { value: "maintenance", label: "Maintenance" },
-  { value: "miscellaneous", label: "Miscellaneous" },
-  { value: "fuel", label: "Fuel" },
-  { value: "food", label: "Food & Beverage" },
-  { value: "accommodation", label: "Accommodation" },
-  { value: "utilities", label: "Utilities" },
-  { value: "maintenance", label: "Maintenance" },
-  { value: "miscellaneous", label: "Miscellaneous" },
+  
 ];
 
 export default function ExpenseForm() {
@@ -126,16 +103,72 @@ export default function ExpenseForm() {
       description1: "",
       description2: "",
       amount: "",
+      billType: "including",
     },
   });
 
-  const onSubmit = (data) => {
-    console.log("Form submitted:", data);
-    toast.success("Expense submitted successfully!", {
-      description: `Amount: ₹${data.amount} - ${data.expenseHead}`,
-    });
-    form.reset();
-    setFileName("");
+  const onSubmit = async (data) => {
+    try {
+      const formData = new FormData();
+      
+      // Append all form fields to formData
+      Object.keys(data).forEach(key => {
+        if (key === 'billPhoto' && data[key]) {
+          formData.append('billPhoto', data.billPhoto);
+        } else if (data[key] !== undefined && data[key] !== null) {
+          formData.append(key, data[key]);
+        }
+      });
+
+      // Convert date to ISO string for the backend
+      if (data.date) {
+        formData.set('date', data.date.toISOString());
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found. Please log in again.');
+      }
+
+      const response = await fetch('http://localhost:5000/api/expenses', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit expense');
+      }
+
+      const result = await response.json();
+      
+      toast.success("Expense submitted successfully!", {
+        description: `Amount: ₹${data.amount} - ${data.expenseHead}`,
+      });
+      
+      // Reset form with default values
+      form.reset({
+        projectName: "",
+        employeeName: "",
+        modeOfPayment: "",
+        expenseHead: "",
+        description1: "",
+        description2: "",
+        amount: "",
+        billType: "including", // Keep consistent with default value
+      });
+      setFileName("");
+      
+    } catch (error) {
+      console.error('Error submitting expense:', error);
+      toast.error("Failed to submit expense", {
+        description: error.message || 'Please try again',
+      });
+    }
   };
 
   const handleFileChange = (e) => {
