@@ -53,8 +53,6 @@ const formSchema = z.object({
   billPhoto: z.any().optional(),
 });
 
-type FormValues = z.infer<typeof formSchema>;
-
 const projects = [
   { id: "meki-nashik", label: "MEKI - Nashik" },
   { id: "temple-jamner", label: "Temple - Jamner" },
@@ -92,9 +90,9 @@ const expenseHeads = [
 
 export default function ExpenseForm() {
   const [expenseHeadOpen, setExpenseHeadOpen] = useState(false);
-  const [fileName, setFileName] = useState<string>("");
+  const [fileName, setFileName] = useState("");
 
-  const form = useForm<FormValues>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       projectName: "",
@@ -107,7 +105,7 @@ export default function ExpenseForm() {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = (data) => {
     console.log("Form submitted:", data);
     toast.success("Expense submitted successfully!", {
       description: `Amount: ₹${data.amount} - ${data.expenseHead}`,
@@ -116,7 +114,7 @@ export default function ExpenseForm() {
     setFileName("");
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setFileName(file.name);
