@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-// import ExpenseForm from "@/components/ExpenseForm";
+import ExpenseForm from "../components/ExpenseForm"
 
 const Index = () => {
   useEffect(() => {
@@ -12,7 +12,7 @@ const Index = () => {
           <h1 className="text-4xl font-bold tracking-tight mb-2">Expense Management</h1>
           <p className="text-lg text-muted-foreground">Track and submit your project expenses efficiently</p>
         </div>
-        <div className="p-6 rounded-md border">Hello from Index (debug)</div>
+        <ExpenseForm />
       </div>
     </div>
   );
